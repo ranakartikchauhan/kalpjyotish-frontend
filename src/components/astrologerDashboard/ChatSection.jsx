@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./ChatSection.module.css";
 import { io } from "socket.io-client";
 import {
@@ -12,6 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000
 const ChatSection = ({ astrologerId }) => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const socketRef = useRef(null);
   const [sendMessageMutation, { isLoading: isSending }] = useSendPrivateChatMessageMutation();
 
   const { data: threads = [], isLoading: isThreadsLoading, refetch: refetchThreads } =
@@ -41,6 +42,7 @@ const ChatSection = ({ astrologerId }) => {
   useEffect(() => {
     if (!astrologerId) return undefined;
     const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+    socketRef.current = socket;
     socket.emit("joinUserRoom", { userId: astrologerId });
     socket.on("threadUpdated", () => {
       refetchThreads();
@@ -51,22 +53,37 @@ const ChatSection = ({ astrologerId }) => {
     socket.on("receiveMessage", () => {
       refetch();
     });
-    return () => socket.disconnect();
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
   }, [astrologerId, selectedThread?.userId, refetch, refetchThreads]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedThread?.userId) return;
 
-    await sendMessageMutation({
+    const payload = {
       userId: selectedThread.userId,
       astroId: astrologerId,
       senderId: astrologerId,
       senderType: "astrologer",
       message: newMessage.trim(),
-    });
+    };
+
+    if (socketRef.current?.connected) {
+      socketRef.current.emit("sendMessage", {
+        userId: payload.userId,
+        astrologerId: astrologerId,
+        senderId: astrologerId,
+        senderType: "astrologer",
+        message: payload.message,
+      });
+    } else {
+      await sendMessageMutation(payload);
+    }
     setNewMessage("");
-    refetch();
+    refetchThreads();
   };
 
   if (!astrologerId) {

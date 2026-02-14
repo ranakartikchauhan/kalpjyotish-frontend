@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
+import { io } from "socket.io-client";
 import {
   useGenerateAgoraTokenMutation,
   useStartCallSessionMutation,
   useUpdateCallSessionStatusMutation,
 } from "../services/backendApi";
 import "./AgoraCallModal.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const buildAgoraChannelName = (callType, astrologerId, userId) => {
   const safeType = String(callType || "voice").replace(/[^a-zA-Z0-9_]/g, "").slice(0, 8);
@@ -34,6 +37,7 @@ const AgoraCallModal = ({
   const remoteVideoRef = useRef(null);
   const tracksRef = useRef({ audioTrack: null, videoTrack: null });
   const channelRef = useRef("");
+  const socketRef = useRef(null);
   const didCleanupRef = useRef(false);
   const startAttemptRef = useRef(0);
   const sessionInitializedRef = useRef(false);
@@ -171,6 +175,31 @@ const AgoraCallModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !userId) return undefined;
+    const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+    socketRef.current = socket;
+    socket.emit("joinUserRoom", { userId });
+    socket.on("callStatusChanged", async ({ channelName, status: callStatus }) => {
+      if (!channelRef.current || channelName !== channelRef.current) return;
+      if (callStatus === "rejected") {
+        setStatus("ended");
+        setError("Call rejected");
+        await cleanup("rejected", false);
+        onClose();
+      }
+      if (callStatus === "ended" || callStatus === "missed") {
+        setStatus("ended");
+        await cleanup("ended", false);
+        onClose();
+      }
+    });
+    return () => {
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [isOpen, userId, onClose]);
+
   if (!isOpen || !astrologer) return null;
 
   return (
@@ -204,7 +233,7 @@ const AgoraCallModal = ({
             : status === "joining"
             ? "Joining call..."
             : status === "ended"
-            ? "Call ended"
+            ? error || "Call ended"
             : "Connecting..."}
         </div>
         {error ? <p className="agora-error">{error}</p> : null}
