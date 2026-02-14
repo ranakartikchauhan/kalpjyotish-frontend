@@ -1,0 +1,111 @@
+/* src/components/Testimonials.css */
+.testimonials-section {
+    padding: 6rem 5%;
+    background: #000000;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.testimonials-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 4rem;
+}
+
+.testimonial-display-area {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: 280px; /* Set a min-height to prevent layout shifts */
+}
+
+.quote-icon-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12rem;
+    color: rgba(255, 184, 51, 0.05);
+    z-index: 0;
+}
+
+.testimonial-card {
+    background-color: transparent;
+    padding: 2rem;
+    border-radius: 16px;
+}
+
+.testimonial-text {
+    font-size: 1.25rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+}
+
+.testimonial-rating {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.author-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.author-location {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Selectors Styling */
+.testimonial-selectors {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.selector-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.selector-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid transparent;
+    transition: all 0.4s ease;
+    filter: grayscale(80%); /* Make non-active profiles less prominent */
+    opacity: 0.6;
+}
+
+.selector-btn:not(.active):hover .selector-img {
+  filter: grayscale(40%);
+  opacity: 0.8;
+}
+
+.selector-btn.active .selector-img {
+    transform: scale(1.15);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 25px var(--glow-color);
+    filter: grayscale(0%);
+    opacity: 1;
+}

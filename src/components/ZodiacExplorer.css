@@ -1,0 +1,112 @@
+/* src/components/ZodiacSigns.css */
+/* NEW STYLES TO EXACTLY MATCH THE LATEST IMAGE */
+
+/* New color palette from your design */
+:root {
+  --page-bg: #1A1A1D;
+  --card-bg: #2C2C30;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --icon-bg: #7B61FF; /* The vibrant purple */
+  --text-primary: #f5f5f5;
+  --text-secondary: #AEAEB2;
+}
+
+.zodiac-signs-page {
+  padding: 4rem 2rem;
+  background-color: var(--page-bg);
+  min-height: 100vh;
+}
+
+/* The image has no main title, so we hide the header */
+.zodiac-signs-header {
+  display: none;
+}
+
+/* --- The Main Grid --- */
+.zodiac-signs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns on desktop */
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- The Card Styling --- */
+.zodiac-sign-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 1rem;
+  text-decoration: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.zodiac-sign-card:hover {
+  transform: translateY(-5px);
+  background: #3A3A3E;
+}
+
+/* --- THE KEY FEATURE: The Icon & Content Wrapper --- */
+.card-icon-content-wrapper {
+  position: relative; /* This is crucial for layering */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background-color: var(--icon-bg);
+  border-radius: 16px;
+  color: var(--text-primary);
+  overflow: hidden; /* Prevents glyph from spilling out */
+}
+
+/* The giant, semi-transparent glyph in the background */
+.zodiac-glyph {
+  position: absolute;
+  font-size: 5rem; /* 80px */
+  line-height: 1;
+  color: var(--text-primary);
+  opacity: 0.15;
+  user-select: none; /* Make it unselectable */
+}
+
+/* The text that sits on top of the glyph */
+.card-text-overlay {
+  position: relative; /* To ensure it's on top */
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-trait {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 992px) {
+  .zodiac-signs-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+  }
+}
+
+@media (max-width: 768px) {
+  .zodiac-signs-page { padding: 4rem 1.5rem; }
+}
+
+@media (max-width: 576px) {
+  .zodiac-signs-grid {
+    grid-template-columns: 1fr; /* Stack cards on mobile */
+  }
+}

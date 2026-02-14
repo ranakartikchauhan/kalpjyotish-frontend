@@ -1,0 +1,83 @@
+/* src/components/DatePicker.css */
+
+/* This makes the entire datepicker popup dark-themed */
+.react-datepicker {
+  font-family: 'Poppins', sans-serif; /* Or your app's font */
+  background-color: #282a3c;
+  border: 1px solid #44475a;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::before,
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::after {
+    border-bottom-color: #282a3c;
+}
+
+.react-datepicker__header {
+  background-color: #1d1f2b;
+  border-bottom: 1px solid #44475a;
+  padding-top: 10px;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: #f8f8f2;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+  color: #bd93f9; /* A nice purple for day names */
+  width: 2rem;
+  line-height: 2rem;
+}
+
+.react-datepicker__day {
+  color: #f8f8f2;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.react-datepicker__day:hover {
+  background-color: #44475a;
+  color: #ffcc00;
+  border-radius: 50%;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #ffcc00;
+  color: #282a3c;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.react-datepicker__day--disabled {
+  color: #6272a4;
+  cursor: not-allowed;
+}
+
+/* For the time picker */
+.react-datepicker__time-container {
+  border-left: 1px solid #44475a;
+}
+
+.react-datepicker__time-list-item {
+  background-color: transparent !important;
+  color: #f8f8f2 !important;
+  padding: 8px 12px !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: #44475a !important;
+  color: #ffcc00 !important;
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: #ffcc00 !important;
+  color: #282a3c !important;
+  font-weight: bold;
+}

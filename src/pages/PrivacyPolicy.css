@@ -1,0 +1,484 @@
+/* =========================
+   WRAPPER
+========================= */
+
+.privacy-wrapper {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: #e5e5e5;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.privacy-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 400px;
+  background: radial-gradient(ellipse at top, rgba(255, 184, 51, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.privacy-hero {
+  text-align: center;
+  padding: 100px 20px 60px;
+  animation: fadeUp 0.8s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.privacy-hero h1 {
+  font-size: 52px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFB833 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+.updated {
+  opacity: 0.6;
+  font-size: 14px;
+  color: #aaa;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 184, 51, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.updated::before {
+  content: '📅';
+  font-size: 16px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.privacy-container {
+  max-width: 1240px;
+  margin: auto;
+  padding: 60px 20px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================
+   SIDEBAR - ENHANCED
+========================= */
+
+.privacy-sidebar {
+  position: sticky;
+  top: 120px;
+  height: fit-content;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 184, 51, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.privacy-sidebar:hover {
+  border-color: rgba(255, 184, 51, 0.3);
+  box-shadow: 0 12px 48px rgba(255, 184, 51, 0.15);
+  transform: translateY(-2px);
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #FFB833;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 184, 51, 0.2);
+}
+
+.privacy-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-sidebar a {
+  color: #bbb;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.privacy-sidebar a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #FFB833, #FFA500);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+
+.privacy-sidebar a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 184, 51, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.privacy-sidebar a:hover {
+  color: #FFB833;
+  background: rgba(255, 184, 51, 0.08);
+  transform: translateX(6px);
+  padding-left: 20px;
+}
+
+.privacy-sidebar a:hover::before {
+  transform: scaleY(1);
+}
+
+.privacy-sidebar a:hover::after {
+  opacity: 1;
+}
+
+.privacy-sidebar a.active {
+  color: #FFB833;
+  background: rgba(255, 184, 51, 0.12);
+  font-weight: 600;
+}
+
+.privacy-sidebar a.active::before {
+  transform: scaleY(1);
+}
+
+/* Icon bullets for links */
+.privacy-sidebar a > span::before {
+  content: '▸';
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.privacy-sidebar a:hover > span::before {
+  transform: translateX(4px);
+}
+
+/* =========================
+   CONTENT - ENHANCED
+========================= */
+
+.privacy-content {
+  animation: fadeInContent 1s ease 0.2s both;
+}
+
+.privacy-content section {
+  margin-bottom: 60px;
+  line-height: 1.8;
+  padding: 32px;
+  background: rgba(20, 20, 20, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 184, 51, 0.1);
+  transition: all 0.4s ease;
+}
+
+.privacy-content section:hover {
+  background: rgba(20, 20, 20, 0.6);
+  border-color: rgba(255, 184, 51, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.privacy-content h2 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFB833 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.privacy-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #FFB833, transparent);
+  border-radius: 2px;
+}
+
+.privacy-content h3 {
+  color: #FFB833;
+  font-size: 20px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.privacy-content p {
+  margin-bottom: 16px;
+  color: #d0d0d0;
+}
+
+.privacy-content ul {
+  padding-left: 20px;
+  margin: 16px 0;
+}
+
+.privacy-content ul li {
+  margin-bottom: 10px;
+  color: #d0d0d0;
+  position: relative;
+  padding-left: 8px;
+}
+
+.privacy-content ul li::marker {
+  color: #FFB833;
+}
+
+.privacy-content a {
+  color: #FFB833;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.privacy-content a:hover {
+  border-bottom-color: #FFB833;
+  filter: brightness(1.2);
+}
+
+/* =========================
+   SCROLL PROGRESS BAR
+========================= */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 184, 51, 0.2);
+  z-index: 100;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #FFB833, #FFA500);
+  width: 0%;
+  transition: width 0.1s ease;
+  box-shadow: 0 0 10px rgba(255, 184, 51, 0.5);
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade {
+  animation: fadeUp 0.8s ease;
+}
+
+/* Stagger animation for sections */
+.privacy-content section:nth-child(1) { animation: fadeUp 0.6s ease 0.1s both; }
+.privacy-content section:nth-child(2) { animation: fadeUp 0.6s ease 0.2s both; }
+.privacy-content section:nth-child(3) { animation: fadeUp 0.6s ease 0.3s both; }
+.privacy-content section:nth-child(4) { animation: fadeUp 0.6s ease 0.4s both; }
+.privacy-content section:nth-child(5) { animation: fadeUp 0.6s ease 0.5s both; }
+
+/* =========================
+   BACK TO TOP BUTTON
+========================= */
+
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #FFB833, #FFA500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 184, 51, 0.3);
+  z-index: 99;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 184, 51, 0.5);
+}
+
+.back-to-top::before {
+  content: '↑';
+  color: #0b0b0b;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 1024px) {
+  .privacy-container {
+    grid-template-columns: 240px 1fr;
+    gap: 40px;
+  }
+  
+  .privacy-sidebar {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .privacy-container {
+    grid-template-columns: 1fr;
+    padding: 40px 20px;
+  }
+
+  .privacy-sidebar {
+    position: relative;
+    top: 0;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s ease;
+  }
+
+  .privacy-hero h1 {
+    font-size: 36px;
+  }
+  
+  .privacy-content section {
+    padding: 24px;
+  }
+  
+  .back-to-top {
+    bottom: 24px;
+    right: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .privacy-hero {
+    padding: 60px 20px 40px;
+  }
+  
+  .privacy-hero h1 {
+    font-size: 28px;
+  }
+  
+  .privacy-content section {
+    padding: 20px;
+    margin-bottom: 40px;
+  }
+  
+  .privacy-content h2 {
+    font-size: 22px;
+  }
+  
+  .privacy-sidebar a {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+}
+
+/* =========================
+   SMOOTH SCROLLING
+========================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0b0b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #FFB833, #FFA500);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #FFA500, #FFB833);
+}

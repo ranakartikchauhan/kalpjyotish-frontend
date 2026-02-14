@@ -1,0 +1,108 @@
+/* =======================================================
+   AstroConnect Component Styles - GUARANTEED TO WORK
+   ======================================================= */
+:root {
+  --bg-dark: #f5f5f5;
+  --bg-card: #2C2C2C;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-primary: #ffcc00;
+  --text-primary: #EAEAEA;
+  --text-secondary: #A0A0A0;
+  --status-live: #2ecc71;
+  /* --- THIS IS THE CRITICAL FIX: The missing variable is now added. --- */
+  --spotlight-color: rgba(255, 204, 0, 0.15); 
+}
+
+/* --- Main Container --- */
+.astro-connect-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+/* --- Sort Controls --- */
+.sort-controls { 
+  display: flex; justify-content: center; align-items: center; 
+  flex-wrap: wrap; gap: 0.75rem; margin-bottom: 3rem; 
+}
+.sort-controls span { margin-right: 1rem; color: var(--text-secondary); }
+.sort-btn { 
+  background: transparent; border: 1px solid var(--border-color); 
+  color: var(--text-secondary); padding: 0.5rem 1.2rem; 
+  border-radius: 20px; cursor: pointer; transition: all 0.3s ease; 
+}
+.sort-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+.sort-btn.active { 
+  background: var(--accent-primary); color: var(--bg-dark); 
+  font-weight: bold; border-color: var(--accent-primary); 
+}
+
+/* --- Astrologer Grid & Message States --- */
+.astrologer-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 2.5rem; max-width: 1600px; margin: 0 auto; 
+}
+.info-message, .error-message { text-align: center; color: var(--text-secondary); font-size: 1.2rem; padding: 4rem 0; }
+.error-message { color: #e74c3c; }
+.full-width { grid-column: 1 / -1; }
+
+/* --- Real Astrologer Card --- */
+.astrologer-card {
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  /* --- FIX: Added a fallback background color --- */
+  background: var(--bg-card); 
+  position: relative;
+  transition: transform 0.3s ease;
+}
+.astrologer-card:hover { transform: translateY(-8px); }
+.card-content { display: flex; flex-direction: column; height: 100%; }
+.card-header { padding: 1.5rem 1rem 0; display: flex; justify-content: center; }
+.profile-picture-container { position: relative; }
+.profile-picture {
+  width: 120px; height: 120px; border-radius: 50%;
+  object-fit: cover; border: 4px solid var(--accent-primary);
+}
+.status-dot {
+  position: absolute; bottom: 5px; right: 5px;
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 3px solid var(--bg-card);
+}
+.status-dot.live { background-color: var(--status-live); }
+.status-dot.offline { background-color: #7f8c8d; }
+.card-body {
+  padding: 1rem 1.5rem; text-align: center; flex-grow: 1;
+  display: flex; flex-direction: column; justify-content: space-around;
+}
+.astrologer-name { font-size: 1.5rem; margin: 0.5rem 0; color: var(--text-primary); }
+.astrologer-skills { 
+  display: flex; justify-content: center; flex-wrap: wrap; 
+  gap: 0.5rem; margin-bottom: 1rem; min-height: 24px; 
+}
+.skill-tag { 
+  background-color: rgba(255,255,255,0.05); color: var(--text-secondary); 
+  font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 5px; 
+}
+.astrologer-meta { 
+  display: flex; justify-content: space-around; 
+  color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; 
+}
+.astrologer-meta span { display: flex; align-items: center; gap: 0.3rem; }
+.astrologer-meta svg { color: var(--accent-primary); }
+.astrologer-charges { font-size: 1.8rem; font-weight: bold; color: var(--accent-primary); }
+.astrologer-charges span { font-size: 1rem; color: var(--text-secondary); margin-left: 0.25rem; }
+.card-footer { padding: 1rem; background-color: rgba(0, 0, 0, 0.2); }
+.action-button { 
+  width: 100%; padding: 0.8rem; font-size: 1.1rem; font-weight: bold;
+  border: none; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  transition: all 0.3s ease; 
+}
+.action-button.enabled { background: var(--accent-primary); color: var(--bg-dark); }
+.action-button.enabled:hover { background-color: #ffe066; }
+.action-button.disabled { background-color: #333; color: #777; cursor: not-allowed; }

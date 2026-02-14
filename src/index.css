@@ -1,0 +1,38 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Philosopher:wght@400;700&display=swap');
+
+
+:root {
+  --bg-color: #000000; /* Warm white with slight cream tone */
+  --primary-color: #b8860b; /* Deep elegant gold */
+  --secondary-color: #ffd700; /* Bright golden yellow */
+  --text-color: #2b210e; /* Deep brown for contrast */
+  --glow-color: rgba(255, 215, 0, 0.3); /* Soft gold glow */
+  --dark-accent: #e8e0c8; /* Subtle beige accent */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+h1, h2 {
+  font-family: 'Philosopher', serif;
+}

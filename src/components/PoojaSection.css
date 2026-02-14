@@ -1,0 +1,181 @@
+:root {
+  --pooja-bg: #f5f5f5;
+  --pooja-card-bg: #222222;
+  --pooja-primary: #FFB833;
+  --pooja-text: #BDBDBD;
+  --pooja-glow: rgba(255, 184, 51, 0.4);
+}
+
+.pooja-section {
+  padding: 5rem 2rem;
+  /* background-color: var(--pooja-bg); */
+  background-color: #000000;
+  text-align: center;
+  min-height: 100vh;
+}
+
+.pooja-main-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--pooja-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.pooja-subtitle {
+  font-size: 1.1rem;
+  color: var(--pooja-text);
+  margin-bottom: 4rem;
+  opacity: 0.8;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pooja-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.tab-button.active {
+  color: var(--pooja-primary);
+}
+
+.active-tab-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pooja-primary);
+  border-radius: 2px;
+}
+
+/* --- Pooja Card Grid --- */
+.pooja-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2.5rem;
+}
+
+.pooja-card {
+  background-color: var(--pooja-card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* --- MODIFIED: Use Flexbox to manage the card's internal layout --- */
+  display: flex;
+  flex-direction: column;
+  /* background-color: aqua; */
+}
+
+.pooja-image-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  /* --- MODIFIED: Add a dark background to the image area --- */
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+  /* Prevents the image container from shrinking */
+
+}
+
+.pooja-image {
+  width: 100%;
+  height: 100%;
+  /* object-fit: contain; */
+  transition: transform 0.4s ease;
+}
+
+.pooja-content {
+  padding: 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.pooja-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.pooja-description {
+  font-size: 0.95rem;
+  color: var(--pooja-text);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.pooja-details-button {
+  display: inline-block;
+  background: var(--pooja-primary);
+  color: #111;
+  padding: 0.7rem 1.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  /* --- MODIFIED: Make the button align itself at the start of its area --- */
+  align-self: flex-start;
+}
+
+.pooja-details-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--pooja-glow);
+}
+
+/* --- Loader & Error --- */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.loader {
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-top: 5px solid var(--pooja-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 1.2rem;
+}
