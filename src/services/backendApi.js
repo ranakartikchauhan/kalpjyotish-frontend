@@ -17,30 +17,30 @@ export const backendApi = createApi({
   tagTypes: ["Astrologers", "Products", "Poojas", "Auth", "Contact", "Horoscope", "Wallet"],
   endpoints: (builder) => ({
     getUserProfile: builder.query({
-      query: (id) => `/api/auth/user/${id}`,
+      query: (id) => `/auth/user/${id}`,
       transformResponse: (response) => response?.data || null,
       providesTags: (_result, _error, id) => [{ type: "Auth", id }],
     }),
     getUserCallHistory: builder.query({
-      query: (userId) => `/api/call/history/${userId}`,
+      query: (userId) => `/call/history/${userId}`,
       transformResponse: (response) => response?.data || [],
     }),
     getAstrologers: builder.query({
       query: (params) => ({
-        url: "/api/astrologer/all",
+        url: "/astrologer/all",
         params,
       }),
       transformResponse: (response) => response?.data || [],
       providesTags: ["Astrologers"],
     }),
     getAstrologerById: builder.query({
-      query: (id) => `/api/astrologer/astrologerbyId/${id}`,
+      query: (id) => `/astrologer/astrologerbyId/${id}`,
       transformResponse: (response) => response?.data || null,
       providesTags: (_result, _error, id) => [{ type: "Astrologers", id }],
     }),
     astrologerLogin: builder.mutation({
       query: (payload) => ({
-        url: "/api/astro/login",
+        url: "/astro/login",
         method: "POST",
         body: payload,
       }),
@@ -48,30 +48,30 @@ export const backendApi = createApi({
     }),
     astrologerSignup: builder.mutation({
       query: (body) => ({
-        url: "/api/astro/create",
+        url: "/astro/create",
         method: "POST",
         body,
       }),
       invalidatesTags: ["Astrologers"],
     }),
     getProducts: builder.query({
-      query: () => "/api/products/all",
+      query: () => "/products/all",
       transformResponse: (response) => response?.data || [],
       providesTags: ["Products"],
     }),
     getPoojas: builder.query({
-      query: () => "/api/All-poojas",
+      query: () => "/All-poojas",
       transformResponse: (response) => response?.data || response || [],
       providesTags: ["Poojas"],
     }),
     getPoojaById: builder.query({
-      query: (id) => `/api/poojas/${id}`,
+      query: (id) => `/poojas/${id}`,
       transformResponse: (response) => response?.data || null,
       providesTags: (_result, _error, id) => [{ type: "Poojas", id }],
     }),
     sendContactQuery: builder.mutation({
       query: (body) => ({
-        url: "/api/contact/add",
+        url: "/contact/add",
         method: "POST",
         body,
       }),
@@ -79,7 +79,7 @@ export const backendApi = createApi({
     }),
     sendOtp: builder.mutation({
       query: (body) => ({
-        url: "/api/auth/send-otp",
+        url: "/auth/send-otp",
         method: "POST",
         body,
       }),
@@ -87,7 +87,7 @@ export const backendApi = createApi({
     }),
     verifyOtp: builder.mutation({
       query: (body) => ({
-        url: "/api/auth/verify-otp",
+        url: "/auth/verify-otp",
         method: "POST",
         body,
       }),
@@ -95,7 +95,7 @@ export const backendApi = createApi({
     }),
     loginUser: builder.mutation({
       query: (body) => ({
-        url: "/api/auth/login",
+        url: "/auth/login",
         method: "POST",
         body,
       }),
@@ -103,7 +103,7 @@ export const backendApi = createApi({
     }),
     signupUser: builder.mutation({
       query: (body) => ({
-        url: "/api/auth/signup",
+        url: "/auth/signup",
         method: "POST",
         body,
       }),
@@ -114,64 +114,64 @@ export const backendApi = createApi({
       providesTags: ["Horoscope"],
     }),
     getPrivateChatHistory: builder.query({
-      query: ({ userId, astrologerId }) => `/api/chat/history/${userId}/${astrologerId}`,
+      query: ({ userId, astrologerId }) => `/chat/history/${userId}/${astrologerId}`,
     }),
     getAstrologerChatThreads: builder.query({
-      query: (astrologerId) => `/api/chat/astrologer/${astrologerId}/threads`,
+      query: (astrologerId) => `/chat/astrologer/${astrologerId}/threads`,
       transformResponse: (response) => response?.data || [],
     }),
     sendPrivateChatMessage: builder.mutation({
       query: (body) => ({
-        url: "/api/chat/send",
+        url: "/chat/send",
         method: "POST",
         body,
       }),
     }),
     getAstroProfile: builder.query({
-      query: (id) => `/api/astro/${id}`,
+      query: (id) => `/astro/${id}`,
       transformResponse: (response) => response?.data || null,
       providesTags: (_result, _error, id) => [{ type: "Astrologers", id }],
     }),
     generateAgoraToken: builder.mutation({
       query: (body) => ({
-        url: "/api/agora/token",
+        url: "/agora/token",
         method: "POST",
         body,
       }),
     }),
     startCallSession: builder.mutation({
       query: (body) => ({
-        url: "/api/call/start",
+        url: "/call/start",
         method: "POST",
         body,
       }),
     }),
     updateCallSessionStatus: builder.mutation({
       query: (body) => ({
-        url: "/api/call/update-status",
+        url: "/call/update-status",
         method: "POST",
         body,
       }),
     }),
     getIncomingCalls: builder.query({
-      query: (astroId) => `/api/call/incoming/${astroId}`,
+      query: (astroId) => `/call/incoming/${astroId}`,
       transformResponse: (response) => response?.data || [],
     }),
     getWalletSummary: builder.query({
-      query: (userId) => `/api/wallet/summary/${userId}`,
+      query: (userId) => `/wallet/summary/${userId}`,
       transformResponse: (response) => response?.data || { walletBalance: 0, freeMinutesRemaining: 0, currency: "INR" },
       providesTags: (_result, _error, userId) => [{ type: "Wallet", id: userId }],
     }),
     createRechargeOrder: builder.mutation({
       query: (body) => ({
-        url: "/api/wallet/recharge/create-order",
+        url: "/wallet/recharge/create-order",
         method: "POST",
         body,
       }),
     }),
     verifyRechargePayment: builder.mutation({
       query: (body) => ({
-        url: "/api/wallet/recharge/verify",
+        url: "/wallet/recharge/verify",
         method: "POST",
         body,
       }),
