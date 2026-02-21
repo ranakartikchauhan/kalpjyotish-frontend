@@ -1,136 +1,90 @@
-import React, { useState } from 'react';
-import styles from './WalletSection.module.css';
+import React from "react";
+import styles from "./WalletSection.module.css";
+import { useGetAstroWalletQuery } from "../../services/backendApi";
 
-const WalletSection = () => {
-    const [walletBalance] = useState(45250);
-    const [transactions] = useState([
-        { id: 1, type: 'credit', amount: 500, description: 'Consultation - Priya Sharma', date: '2024-02-10', time: '10:30 AM' },
-        { id: 2, type: 'credit', amount: 750, description: 'Consultation - Rahul Verma', date: '2024-02-10', time: '09:15 AM' },
-        { id: 3, type: 'debit', amount: 5000, description: 'Withdrawal to Bank', date: '2024-02-09', time: '03:20 PM' },
-        { id: 4, type: 'credit', amount: 600, description: 'Consultation - Anjali Singh', date: '2024-02-09', time: '11:45 AM' },
-        { id: 5, type: 'credit', amount: 450, description: 'Consultation - Vikram Patel', date: '2024-02-08', time: '02:30 PM' },
-        { id: 6, type: 'debit', amount: 10000, description: 'Withdrawal to Bank', date: '2024-02-05', time: '04:15 PM' },
-    ]);
+const asInr = (value) => `INR ${Number(value || 0).toFixed(2)}`;
 
-    const [withdrawAmount, setWithdrawAmount] = useState('');
-    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+const WalletSection = ({ astrologerId }) => {
+  const { data, isLoading } = useGetAstroWalletQuery(
+    { astroId: astrologerId },
+    { skip: !astrologerId }
+  );
 
-    const handleWithdraw = (e) => {
-        e.preventDefault();
-        alert(`Withdrawal request of ₹${withdrawAmount} submitted successfully!`);
-        setWithdrawAmount('');
-        setShowWithdrawModal(false);
-    };
+  const transactions = data?.transactions || [];
+  const walletBalance = Number(data?.walletBalance || 0);
+  const totalSessions = Number(data?.totalSessions || 0);
+  const totalMinutes = Number(data?.totalMinutes || 0);
+  const avgPerSession = totalSessions > 0 ? walletBalance / totalSessions : 0;
 
-    return (
-        <div className={styles.walletContainer}>
-            {/* Wallet Balance Card */}
-            <div className={styles.balanceCard}>
-                <div className={styles.balanceInfo}>
-                    <h3>Available Balance</h3>
-                    <h1>₹{walletBalance.toLocaleString()}</h1>
-                    <p>Last updated: Today at 11:30 AM</p>
-                </div>
-                <div className={styles.balanceActions}>
-                    <button className={styles.withdrawBtn} onClick={() => setShowWithdrawModal(true)}>
-                        Withdraw Money
-                    </button>
-                    <button className={styles.historyBtn}>View Full History</button>
-                </div>
-            </div>
+  if (!astrologerId) {
+    return <div className={styles.walletContainer}>Please login as astrologer.</div>;
+  }
 
-            {/* Quick Stats */}
-            <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                    <div className={styles.statIcon}>📈</div>
-                    <div className={styles.statInfo}>
-                        <h4>This Month</h4>
-                        <h2>₹18,750</h2>
-                        <p className={styles.positive}>+15% from last month</p>
-                    </div>
-                </div>
-                <div className={styles.statCard}>
-                    <div className={styles.statIcon}>💼</div>
-                    <div className={styles.statInfo}>
-                        <h4>Total Consultations</h4>
-                        <h2>1,250</h2>
-                        <p>All time</p>
-                    </div>
-                </div>
-                <div className={styles.statCard}>
-                    <div className={styles.statIcon}>⏱️</div>
-                    <div className={styles.statInfo}>
-                        <h4>Avg. Session Time</h4>
-                        <h2>25 min</h2>
-                        <p>This month</p>
-                    </div>
-                </div>
-            </div>
+  if (isLoading) {
+    return <div className={styles.walletContainer}>Loading wallet...</div>;
+  }
 
-            {/* Recent Transactions */}
-            <div className={styles.transactionsSection}>
-                <h2>Recent Transactions</h2>
-                <div className={styles.transactionsList}>
-                    {transactions.map(transaction => (
-                        <div key={transaction.id} className={styles.transactionItem}>
-                            <div className={styles.transactionIcon}>
-                                {transaction.type === 'credit' ? '📥' : '📤'}
-                            </div>
-                            <div className={styles.transactionDetails}>
-                                <h4>{transaction.description}</h4>
-                                <p>{transaction.date} at {transaction.time}</p>
-                            </div>
-                            <div className={`${styles.transactionAmount} ${styles[transaction.type]}`}>
-                                {transaction.type === 'credit' ? '+' : '-'}₹{transaction.amount}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Withdraw Modal */}
-            {showWithdrawModal && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modal}>
-                        <div className={styles.modalHeader}>
-                            <h2>Withdraw Money</h2>
-                            <button className={styles.closeBtn} onClick={() => setShowWithdrawModal(false)}>×</button>
-                        </div>
-                        <form onSubmit={handleWithdraw}>
-                            <div className={styles.modalBody}>
-                                <p>Available Balance: ₹{walletBalance.toLocaleString()}</p>
-                                <div className={styles.formGroup}>
-                                    <label>Enter Amount</label>
-                                    <input
-                                        type="number"
-                                        value={withdrawAmount}
-                                        onChange={(e) => setWithdrawAmount(e.target.value)}
-                                        placeholder="Enter amount to withdraw"
-                                        min="100"
-                                        max={walletBalance}
-                                        required
-                                    />
-                                </div>
-                                <div className={styles.bankInfo}>
-                                    <p><strong>Bank Account:</strong> XXXX XXXX XXXX 4567</p>
-                                    <p><strong>IFSC Code:</strong> SBIN0001234</p>
-                                    <button type="button" className={styles.changeBankBtn}>Change Bank Account</button>
-                                </div>
-                            </div>
-                            <div className={styles.modalFooter}>
-                                <button type="button" className={styles.cancelBtn} onClick={() => setShowWithdrawModal(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className={styles.confirmBtn}>
-                                    Confirm Withdrawal
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+  return (
+    <div className={styles.walletContainer}>
+      <div className={styles.balanceCard}>
+        <div className={styles.balanceInfo}>
+          <h3>Total Earned (Wallet)</h3>
+          <h1>{asInr(walletBalance)}</h1>
+          <p>Completed sessions credited based on charged per-minute rate</p>
         </div>
-    );
+      </div>
+
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>INR</div>
+          <div className={styles.statInfo}>
+            <h4>Total Earnings</h4>
+            <h2>{asInr(walletBalance)}</h2>
+            <p>All completed sessions</p>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>#</div>
+          <div className={styles.statInfo}>
+            <h4>Total Sessions</h4>
+            <h2>{totalSessions}</h2>
+            <p>Chat + Voice + Video + Live</p>
+          </div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>MIN</div>
+          <div className={styles.statInfo}>
+            <h4>Total Minutes</h4>
+            <h2>{totalMinutes.toFixed(2)}</h2>
+            <p>Average/session: {avgPerSession > 0 ? asInr(avgPerSession) : "INR 0.00"}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.transactionsSection}>
+        <h2>Earning Transactions</h2>
+        <div className={styles.transactionsList}>
+          {transactions.length === 0 ? <div className={styles.transactionItem}>No transactions found.</div> : null}
+          {transactions.map((tx) => (
+            <div key={tx.sessionId} className={styles.transactionItem}>
+              <div className={styles.transactionIcon}>+</div>
+              <div className={styles.transactionDetails}>
+                <h4>{String(tx.callType || "session").toUpperCase()} Session</h4>
+                <p>
+                  {new Date(tx.date).toLocaleDateString()} at{" "}
+                  {new Date(tx.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </p>
+                <p>
+                  {tx.durationMinutes} min x INR {Number(tx.ratePerMinute || 0).toFixed(2)}/min
+                </p>
+              </div>
+              <div className={`${styles.transactionAmount} ${styles.credit}`}>+{asInr(tx.amount)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default WalletSection;

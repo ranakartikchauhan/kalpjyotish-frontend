@@ -157,6 +157,29 @@ export const backendApi = createApi({
       query: (astroId) => `/call/incoming/${astroId}`,
       transformResponse: (response) => response?.data || [],
     }),
+    getAstroWallet: builder.query({
+      query: ({ astroId, filter, type } = {}) => ({
+        url: `/call/wallet/${astroId}`,
+        params: { filter, type },
+      }),
+      transformResponse: (response) =>
+        response?.data || { totalSessions: 0, totalMinutes: "0.00", walletBalance: "0.00", currency: "INR", transactions: [] },
+    }),
+    getAstroEarnings: builder.query({
+      query: ({ astroId, filter, type } = {}) => ({
+        url: `/call/earnings/${astroId}`,
+        params: { filter, type },
+      }),
+      transformResponse: (response) =>
+        response?.data || { totalCalls: 0, totalMinutes: "0.00", totalEarning: "0.00", currency: "INR", transactions: [] },
+    }),
+    getAstroDashboardSummary: builder.query({
+      query: ({ astroId, filter } = {}) => ({
+        url: `/call/dashboard/${astroId}`,
+        params: { filter },
+      }),
+      transformResponse: (response) => response?.data || null,
+    }),
     getWalletSummary: builder.query({
       query: (userId) => `/wallet/summary/${userId}`,
       transformResponse: (response) => response?.data || { walletBalance: 0, freeMinutesRemaining: 0, currency: "INR" },
@@ -204,6 +227,9 @@ export const {
   useStartCallSessionMutation,
   useUpdateCallSessionStatusMutation,
   useGetIncomingCallsQuery,
+  useGetAstroWalletQuery,
+  useGetAstroEarningsQuery,
+  useGetAstroDashboardSummaryQuery,
   useGetWalletSummaryQuery,
   useCreateRechargeOrderMutation,
   useVerifyRechargePaymentMutation,

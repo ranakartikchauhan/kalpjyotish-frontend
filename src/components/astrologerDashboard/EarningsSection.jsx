@@ -1,138 +1,134 @@
-import React, { useState } from 'react';
-import styles from './EarningsSection.module.css';
+import React, { useMemo, useState } from "react";
+import styles from "./EarningsSection.module.css";
+import { useGetAstroDashboardSummaryQuery, useGetAstroEarningsQuery } from "../../services/backendApi";
 
-const EarningsSection = () => {
-    const [selectedPeriod, setSelectedPeriod] = useState('month');
+const asInr = (value) => `INR ${Number(value || 0).toFixed(2)}`;
 
-    const earningsData = {
-        today: { amount: 2500, consultations: 5 },
-        week: { amount: 12750, consultations: 28 },
-        month: { amount: 45250, consultations: 105 },
-        year: { amount: 542000, consultations: 1250 }
-    };
+const EarningsSection = ({ astrologerId }) => {
+  const [selectedPeriod, setSelectedPeriod] = useState("month");
+  const filter = selectedPeriod === "all" ? undefined : selectedPeriod;
 
-    const monthlyData = [
-        { month: 'Jan', amount: 38500, consultations: 89 },
-        { month: 'Feb', amount: 45250, consultations: 105 },
-        { month: 'Mar', amount: 41200, consultations: 96 },
-        { month: 'Apr', amount: 48900, consultations: 112 },
-        { month: 'May', amount: 52300, consultations: 121 },
-        { month: 'Jun', amount: 49100, consultations: 115 },
-    ];
+  const { data: earningsData, isLoading } = useGetAstroEarningsQuery(
+    { astroId: astrologerId, filter },
+    { skip: !astrologerId }
+  );
+  const { data: summary } = useGetAstroDashboardSummaryQuery(
+    { astroId: astrologerId, filter },
+    { skip: !astrologerId }
+  );
 
-    const topServices = [
-        { name: 'Birth Chart Analysis', count: 45, revenue: 22500 },
-        { name: 'Career Consultation', count: 32, revenue: 16000 },
-        { name: 'Relationship Guidance', count: 28, revenue: 14000 },
-        { name: 'Remedial Solutions', count: 20, revenue: 10000 },
-        { name: 'Gemstone Consultation', count: 15, revenue: 7500 },
-    ];
+  const transactions = earningsData?.transactions || [];
+  const totalEarning = Number(earningsData?.totalEarning || 0);
+  const totalCalls = Number(earningsData?.totalCalls || 0);
+  const totalMinutes = Number(earningsData?.totalMinutes || 0);
+  const avgPerSession = totalCalls > 0 ? totalEarning / totalCalls : 0;
 
-    return (
-        <div className={styles.earningsContainer}>
-            {/* Period Selector */}
-            <div className={styles.periodSelector}>
-                <button
-                    className={selectedPeriod === 'today' ? styles.active : ''}
-                    onClick={() => setSelectedPeriod('today')}
-                >
-                    Today
-                </button>
-                <button
-                    className={selectedPeriod === 'week' ? styles.active : ''}
-                    onClick={() => setSelectedPeriod('week')}
-                >
-                    This Week
-                </button>
-                <button
-                    className={selectedPeriod === 'month' ? styles.active : ''}
-                    onClick={() => setSelectedPeriod('month')}
-                >
-                    This Month
-                </button>
-                <button
-                    className={selectedPeriod === 'year' ? styles.active : ''}
-                    onClick={() => setSelectedPeriod('year')}
-                >
-                    This Year
-                </button>
-            </div>
+  const chartData = useMemo(() => transactions.slice(0, 6).reverse(), [transactions]);
+  const topServices = useMemo(
+    () =>
+      ["voice", "video", "chat", "live"]
+        .map((key) => ({
+          key,
+          sessions: Number(summary?.[key]?.sessions || 0),
+          minutes: Number(summary?.[key]?.minutes || 0),
+          earning: Number(summary?.[key]?.earning || 0),
+        }))
+        .filter((x) => x.sessions > 0)
+        .sort((a, b) => b.earning - a.earning),
+    [summary]
+  );
 
-            {/* Earnings Summary */}
-            <div className={styles.summaryCards}>
-                <div className={styles.summaryCard}>
-                    <div className={styles.cardIcon}>💰</div>
-                    <div className={styles.cardContent}>
-                        <h4>Total Earnings</h4>
-                        <h2>₹{earningsData[selectedPeriod].amount.toLocaleString()}</h2>
-                        <p>From {earningsData[selectedPeriod].consultations} consultations</p>
-                    </div>
-                </div>
+  if (!astrologerId) {
+    return <div className={styles.earningsContainer}>Please login as astrologer.</div>;
+  }
 
-                <div className={styles.summaryCard}>
-                    <div className={styles.cardIcon}>📊</div>
-                    <div className={styles.cardContent}>
-                        <h4>Average per Session</h4>
-                        <h2>₹{Math.round(earningsData[selectedPeriod].amount / earningsData[selectedPeriod].consultations)}</h2>
-                        <p>Based on all consultations</p>
-                    </div>
-                </div>
+  if (isLoading) {
+    return <div className={styles.earningsContainer}>Loading earnings...</div>;
+  }
 
-                <div className={styles.summaryCard}>
-                    <div className={styles.cardIcon}>🎯</div>
-                    <div className={styles.cardContent}>
-                        <h4>Growth Rate</h4>
-                        <h2>+15%</h2>
-                        <p className={styles.positive}>Compared to last period</p>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className={styles.earningsContainer}>
+      <div className={styles.periodSelector}>
+        <button className={selectedPeriod === "day" ? styles.active : ""} onClick={() => setSelectedPeriod("day")}>
+          Today
+        </button>
+        <button className={selectedPeriod === "week" ? styles.active : ""} onClick={() => setSelectedPeriod("week")}>
+          This Week
+        </button>
+        <button className={selectedPeriod === "month" ? styles.active : ""} onClick={() => setSelectedPeriod("month")}>
+          This Month
+        </button>
+        <button className={selectedPeriod === "all" ? styles.active : ""} onClick={() => setSelectedPeriod("all")}>
+          All Time
+        </button>
+      </div>
 
-            {/* Monthly Chart */}
-            <div className={styles.chartSection}>
-                <h2>Monthly Earnings Trend</h2>
-                <div className={styles.chart}>
-                    {monthlyData.map((data, index) => (
-                        <div key={index} className={styles.chartBar}>
-                            <div
-                                className={styles.bar}
-                                style={{ height: `${(data.amount / 60000) * 100}%` }}
-                            >
-                                <span className={styles.barValue}>₹{(data.amount / 1000).toFixed(0)}k</span>
-                            </div>
-                            <span className={styles.barLabel}>{data.month}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Top Services */}
-            <div className={styles.servicesSection}>
-                <h2>Top Performing Services</h2>
-                <div className={styles.servicesList}>
-                    {topServices.map((service, index) => (
-                        <div key={index} className={styles.serviceItem}>
-                            <div className={styles.serviceRank}>#{index + 1}</div>
-                            <div className={styles.serviceInfo}>
-                                <h4>{service.name}</h4>
-                                <p>{service.count} consultations</p>
-                            </div>
-                            <div className={styles.serviceRevenue}>
-                                ₹{service.revenue.toLocaleString()}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Download Report Button */}
-            <div className={styles.actionsSection}>
-                <button className={styles.downloadBtn}>
-                    📥 Download Earnings Report
-                </button>
-            </div>
+      <div className={styles.summaryCards}>
+        <div className={styles.summaryCard}>
+          <div className={styles.cardIcon}>INR</div>
+          <div className={styles.cardContent}>
+            <h4>Total Earnings</h4>
+            <h2>{asInr(totalEarning)}</h2>
+            <p>From {totalCalls} consultations</p>
+          </div>
         </div>
-    );
+        <div className={styles.summaryCard}>
+          <div className={styles.cardIcon}>AVG</div>
+          <div className={styles.cardContent}>
+            <h4>Average per Session</h4>
+            <h2>{asInr(avgPerSession)}</h2>
+            <p>Total minutes: {totalMinutes.toFixed(2)}</p>
+          </div>
+        </div>
+        <div className={styles.summaryCard}>
+          <div className={styles.cardIcon}>MIN</div>
+          <div className={styles.cardContent}>
+            <h4>Minutes Billed</h4>
+            <h2>{totalMinutes.toFixed(2)}</h2>
+            <p>Charged by actual per-minute rates</p>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.chartSection}>
+        <h2>Recent Session Earnings</h2>
+        <div className={styles.chart}>
+          {chartData.length === 0 ? <div>No recent sessions.</div> : null}
+          {chartData.map((item) => {
+            const amount = Number(item.amount || 0);
+            const max = Math.max(...chartData.map((x) => Number(x.amount || 0)), 1);
+            return (
+              <div key={item.sessionId} className={styles.chartBar}>
+                <div className={styles.bar} style={{ height: `${Math.max(8, (amount / max) * 100)}%` }}>
+                  <span className={styles.barValue}>{asInr(amount)}</span>
+                </div>
+                <span className={styles.barLabel}>{String(item.callType || "").toUpperCase()}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={styles.servicesSection}>
+        <h2>Service-wise Earnings</h2>
+        <div className={styles.servicesList}>
+          {topServices.length === 0 ? <div className={styles.serviceItem}>No sessions found for selected period.</div> : null}
+          {topServices.map((service, index) => (
+            <div key={service.key} className={styles.serviceItem}>
+              <div className={styles.serviceRank}>#{index + 1}</div>
+              <div className={styles.serviceInfo}>
+                <h4>{service.key.toUpperCase()}</h4>
+                <p>
+                  {service.sessions} sessions • {service.minutes.toFixed(2)} min
+                </p>
+              </div>
+              <div className={styles.serviceRevenue}>{asInr(service.earning)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default EarningsSection;

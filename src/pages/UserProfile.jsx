@@ -7,6 +7,8 @@ import {
   useGetWalletSummaryQuery,
 } from '../services/backendApi';
 
+const asInr = (value) => `INR ${Number(value || 0).toFixed(2)}`;
+
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const navigate = useNavigate();
@@ -54,6 +56,7 @@ const UserProfile = () => {
           duration: `${Math.max(0, mins).toFixed(1)} min`,
           topic: `${item.callType || 'session'} consultation`,
           amount: Number(item.totalEarning || 0).toFixed(2),
+          ratePerMinute: Number(item.ratePerMinute || 0).toFixed(2),
           status: item.status,
         };
       }),
@@ -119,16 +122,16 @@ const UserProfile = () => {
                 <div className={styles.astrologerAvatar}>{chat.astrologer.charAt(0)}</div>
                 <div>
                   <h4>{chat.astrologer}</h4>
-                  <p className={styles.topic}>{chat.topic}</p>
+                  <p className={styles.topic}>{chat.topic} • INR {chat.ratePerMinute}/min</p>
                 </div>
               </div>
-              <div className={styles.amount}>?{chat.amount}</div>
+              <div className={styles.amount}>{asInr(chat.amount)}</div>
             </div>
             <div className={styles.historyCardBody}>
-              <div className={styles.historyDetail}><span className={styles.icon}>??</span><span>{chat.date}</span></div>
-              <div className={styles.historyDetail}><span className={styles.icon}>??</span><span>{chat.time}</span></div>
-              <div className={styles.historyDetail}><span className={styles.icon}>??</span><span>{chat.duration}</span></div>
-              <div className={styles.historyDetail}><span className={styles.icon}>??</span><span>{chat.status}</span></div>
+              <div className={styles.historyDetail}><span className={styles.icon}>DATE</span><span>{chat.date}</span></div>
+              <div className={styles.historyDetail}><span className={styles.icon}>TIME</span><span>{chat.time}</span></div>
+              <div className={styles.historyDetail}><span className={styles.icon}>DUR</span><span>{chat.duration}</span></div>
+              <div className={styles.historyDetail}><span className={styles.icon}>STS</span><span>{chat.status}</span></div>
             </div>
           </div>
         ))}
@@ -141,14 +144,14 @@ const UserProfile = () => {
       <div className={styles.walletBalance}>
         <div className={styles.balanceCard}>
           <h3>Wallet Balance</h3>
-          <h1>?{walletBalance.toFixed(2)}</h1>
+          <h1>{asInr(walletBalance)}</h1>
           <p>Free Minutes: {freeMinutes.toFixed(2)}</p>
           <button className={styles.rechargeBtn} onClick={() => navigate('/astro-connect')}>Use Credits</button>
         </div>
 
         <div className={styles.walletStats}>
-          <div className={styles.statBox}><span className={styles.statIcon}>??</span><div><p>Credits</p><h4>?{walletBalance.toFixed(2)}</h4></div></div>
-          <div className={styles.statBox}><span className={styles.statIcon}>??</span><div><p>Free Minutes</p><h4>{freeMinutes.toFixed(2)}</h4></div></div>
+          <div className={styles.statBox}><span className={styles.statIcon}>INR</span><div><p>Credits</p><h4>{asInr(walletBalance)}</h4></div></div>
+          <div className={styles.statBox}><span className={styles.statIcon}>MIN</span><div><p>Free Minutes</p><h4>{freeMinutes.toFixed(2)}</h4></div></div>
         </div>
       </div>
 
@@ -158,12 +161,12 @@ const UserProfile = () => {
           {historyItems.length === 0 ? <div className={styles.transactionItem}>No usage history available.</div> : null}
           {historyItems.map((transaction) => (
             <div key={transaction.id} className={styles.transactionItem}>
-              <div className={styles.transactionIcon}>??</div>
+              <div className={styles.transactionIcon}>-</div>
               <div className={styles.transactionDetails}>
                 <h4>{transaction.astrologer}</h4>
                 <p>{transaction.date} at {transaction.time}</p>
               </div>
-              <div className={`${styles.transactionAmount} ${styles.debit}`}>-?{transaction.amount}</div>
+              <div className={`${styles.transactionAmount} ${styles.debit}`}>-{asInr(transaction.amount)}</div>
             </div>
           ))}
         </div>
@@ -178,20 +181,20 @@ const UserProfile = () => {
           <img src={userData.profileImage} alt='User' className={styles.userAvatar} />
           <h3>{userData.name}</h3>
           <p>{userData.email}</p>
-          <p>Credits: ?{walletBalance.toFixed(2)}</p>
+          <p>Credits: {asInr(walletBalance)}</p>
         </div>
 
         <nav className={styles.profileNav}>
           <button className={`${styles.navItem} ${activeTab === 'profile' ? styles.active : ''}`} onClick={() => setActiveTab('profile')}>
-            <span className={styles.navIcon}>??</span>
+            <span className={styles.navIcon}>P</span>
             My Profile
           </button>
           <button className={`${styles.navItem} ${activeTab === 'history' ? styles.active : ''}`} onClick={() => setActiveTab('history')}>
-            <span className={styles.navIcon}>??</span>
+            <span className={styles.navIcon}>H</span>
             History
           </button>
           <button className={`${styles.navItem} ${activeTab === 'wallet' ? styles.active : ''}`} onClick={() => setActiveTab('wallet')}>
-            <span className={styles.navIcon}>??</span>
+            <span className={styles.navIcon}>W</span>
             Credits
           </button>
         </nav>
@@ -209,7 +212,7 @@ const UserProfile = () => {
             navigate('/');
           }}
         >
-          <span className={styles.navIcon}>??</span>
+          <span className={styles.navIcon}>O</span>
           Logout
         </button>
       </div>

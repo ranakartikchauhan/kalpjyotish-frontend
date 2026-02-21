@@ -58,9 +58,9 @@ const AstrologerDashboard = () => {
       case "chat":
         return <ChatSection astrologerId={astrologerId} />;
       case "wallet":
-        return <WalletSection />;
+        return <WalletSection astrologerId={astrologerId} />;
       case "earnings":
-        return <EarningsSection />;
+        return <EarningsSection astrologerId={astrologerId} />;
       case "profile":
         return <ProfileSection astrologerData={astrologerData} />;
       default:
