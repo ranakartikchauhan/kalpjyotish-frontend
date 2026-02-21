@@ -4,16 +4,17 @@ import { io } from "socket.io-client";
 import {
   useGetAstrologerChatThreadsQuery,
   useGetPrivateChatHistoryQuery,
-  useSendPrivateChatMessageMutation,
 } from "../../services/backendApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const SOCKET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
 const ChatSection = ({ astrologerId }) => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const [liveMessages, setLiveMessages] = useState([]);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
   const socketRef = useRef(null);
-  const [sendMessageMutation, { isLoading: isSending }] = useSendPrivateChatMessageMutation();
 
   const { data: threads = [], isLoading: isThreadsLoading, refetch: refetchThreads } =
     useGetAstrologerChatThreadsQuery(astrologerId, {
@@ -21,8 +22,27 @@ const ChatSection = ({ astrologerId }) => {
     });
 
   const selectedThread = useMemo(
-    () => threads.find((t) => t.userId === selectedUserId) || threads[0],
+    () => threads.find((t) => String(t.userId) === String(selectedUserId)) || threads[0],
     [threads, selectedUserId]
+  );
+
+  const { data: history = [], isLoading: isMessagesLoading } =
+    useGetPrivateChatHistoryQuery(
+      { userId: selectedThread?.userId, astrologerId },
+      { skip: !selectedThread?.userId || !astrologerId }
+    );
+
+  const mergedMessages = useMemo(() => {
+    const base = Array.isArray(history) ? history : [];
+    if (!liveMessages.length) return base;
+    const seen = new Set(base.map((m) => String(m?._id)));
+    const extra = liveMessages.filter((m) => !m?._id || !seen.has(String(m._id)));
+    return [...base, ...extra];
+  }, [history, liveMessages]);
+
+  const orderedMessages = useMemo(
+    () => [...mergedMessages].sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)),
+    [mergedMessages]
   );
 
   useEffect(() => {
@@ -31,59 +51,65 @@ const ChatSection = ({ astrologerId }) => {
     }
   }, [threads, selectedUserId]);
 
-  const { data: messages = [], isLoading: isMessagesLoading, refetch } =
-    useGetPrivateChatHistoryQuery(
-      { userId: selectedThread?.userId, astrologerId },
-      {
-        skip: !selectedThread?.userId || !astrologerId,
-      }
-    );
-
   useEffect(() => {
     if (!astrologerId) return undefined;
-    const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+    const socket = io(SOCKET_BASE_URL, { transports: ["websocket", "polling"] });
     socketRef.current = socket;
+
+    socket.on("connect", () => setIsSocketConnected(true));
+    socket.on("disconnect", () => setIsSocketConnected(false));
+
     socket.emit("joinUserRoom", { userId: astrologerId });
-    socket.on("threadUpdated", () => {
-      refetchThreads();
-    });
     if (selectedThread?.userId) {
       socket.emit("joinChat", { userId: selectedThread.userId, astrologerId });
     }
-    socket.on("receiveMessage", () => {
-      refetch();
+
+    socket.on("threadUpdated", () => {
+      refetchThreads();
     });
+
+    socket.on("receiveMessage", (incoming) => {
+      const senderId = String(incoming?.senderId || "");
+      const receiverId = String(incoming?.receiverId || "");
+      const activeUserId = String(selectedThread?.userId || "");
+      const astroId = String(astrologerId || "");
+      const isActiveThread =
+        (senderId === activeUserId && receiverId === astroId) ||
+        (senderId === astroId && receiverId === activeUserId);
+
+      if (isActiveThread) {
+        setLiveMessages((prev) => [...prev, incoming]);
+      }
+      refetchThreads();
+    });
+
     return () => {
       socket.disconnect();
       socketRef.current = null;
+      setLiveMessages([]);
+      setIsSocketConnected(false);
     };
-  }, [astrologerId, selectedThread?.userId, refetch, refetchThreads]);
+  }, [astrologerId, refetchThreads, selectedThread?.userId]);
 
-  const handleSendMessage = async (e) => {
+  useEffect(() => {
+    setLiveMessages([]);
+  }, [selectedThread?.userId]);
+
+  const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedThread?.userId) return;
+    if (!newMessage.trim() || !selectedThread?.userId || !socketRef.current?.connected) return;
 
     const payload = {
       userId: selectedThread.userId,
-      astroId: astrologerId,
+      astrologerId,
       senderId: astrologerId,
       senderType: "astrologer",
       message: newMessage.trim(),
     };
 
-    if (socketRef.current?.connected) {
-      socketRef.current.emit("sendMessage", {
-        userId: payload.userId,
-        astrologerId: astrologerId,
-        senderId: astrologerId,
-        senderType: "astrologer",
-        message: payload.message,
-      });
-    } else {
-      await sendMessageMutation(payload);
-    }
+    socketRef.current.emit("sendMessage", payload);
+
     setNewMessage("");
-    refetchThreads();
   };
 
   if (!astrologerId) {
@@ -113,7 +139,9 @@ const ChatSection = ({ astrologerId }) => {
             </div>
             <div className={styles.customerMeta}>
               <span className={styles.time}>
-                {thread.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+                {thread.lastMessageAt
+                  ? new Date(thread.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                  : ""}
               </span>
             </div>
           </div>
@@ -134,14 +162,14 @@ const ChatSection = ({ astrologerId }) => {
         <div className={styles.messagesContainer}>
           {isMessagesLoading ? <p>Loading messages...</p> : null}
           {!isMessagesLoading &&
-            messages.map((message) => {
-              const isAstro = message.senderType === "astrologer";
+            orderedMessages.map((chatMessage) => {
+              const isAstro = chatMessage.senderType === "astrologer";
               return (
-                <div key={message._id} className={`${styles.message} ${isAstro ? styles.sent : styles.received}`}>
+                <div key={chatMessage._id} className={`${styles.message} ${isAstro ? styles.sent : styles.received}`}>
                   <div className={styles.messageContent}>
-                    <p>{message.message}</p>
+                    <p>{chatMessage.message}</p>
                     <span className={styles.messageTime}>
-                      {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(chatMessage.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
                 </div>
@@ -156,8 +184,8 @@ const ChatSection = ({ astrologerId }) => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
-          <button type="submit" className={styles.sendBtn} disabled={isSending}>
-            {isSending ? "Sending..." : "Send"}
+          <button type="submit" className={styles.sendBtn} disabled={!isSocketConnected}>
+            Send
           </button>
         </form>
       </div>

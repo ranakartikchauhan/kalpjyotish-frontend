@@ -13,6 +13,7 @@ import {
 } from "../services/backendApi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const SOCKET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
 const AstrologerDashboard = () => {
   const [activeTab, setActiveTab] = useState("chat");
@@ -33,7 +34,7 @@ const AstrologerDashboard = () => {
 
   useEffect(() => {
     if (!astrologerId) return undefined;
-    const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+    const socket = io(SOCKET_BASE_URL, { transports: ["websocket", "polling"] });
     socket.emit("joinUserRoom", { userId: astrologerId });
 
     socket.on("incomingCall", (call) => {

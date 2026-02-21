@@ -9,6 +9,7 @@ import {
 import "./AgoraCallModal.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const SOCKET_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 
 const buildAgoraChannelName = (callType, astrologerId, userId) => {
   const safeType = String(callType || "voice").replace(/[^a-zA-Z0-9_]/g, "").slice(0, 8);
@@ -177,7 +178,7 @@ const AgoraCallModal = ({
 
   useEffect(() => {
     if (!isOpen || !userId) return undefined;
-    const socket = io(API_BASE_URL, { transports: ["websocket", "polling"] });
+    const socket = io(SOCKET_BASE_URL, { transports: ["websocket", "polling"] });
     socketRef.current = socket;
     socket.emit("joinUserRoom", { userId });
     socket.on("callStatusChanged", async ({ channelName, status: callStatus }) => {

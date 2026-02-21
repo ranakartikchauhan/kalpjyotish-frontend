@@ -27,6 +27,43 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const postToFirstWorkingEndpoint = async (paths, payload) => {
+    for (const path of paths) {
+      try {
+        const resp = await fetch(`${API_BASE_URL}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok) {
+          return data;
+        }
+      } catch {
+        // try next candidate endpoint
+      }
+    }
+    return null;
+  };
+
+  const normalizeAuthResponse = (payload) => {
+    const container = payload?.data && typeof payload.data === "object" ? payload.data : payload;
+    const userFromContainer =
+      container?.user && typeof container.user === "object" ? container.user : null;
+    const directUser =
+      payload?.user && typeof payload.user === "object" ? payload.user : null;
+    const userData =
+      userFromContainer ||
+      directUser ||
+      (container?._id && typeof container === "object" ? container : null);
+    const token =
+      container?.token ||
+      payload?.token ||
+      payload?.authToken ||
+      null;
+    return { userData, token };
+  };
+
   /* ---------------- REDIRECT IF LOGGED IN ---------------- */
   useEffect(() => {
     if (isLoggedIn && user) {
@@ -34,6 +71,18 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
       navigate("/user-profile");
     }
   }, [isLoggedIn, user, navigate, onClose]);
+
+  useEffect(() => {
+    return () => {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+      if (window.confirmationResult) {
+        window.confirmationResult = null;
+      }
+    };
+  }, []);
 
   /* ---------------- INIT FIREBASE reCAPTCHA ---------------- */
   // useEffect(() => {
@@ -160,7 +209,17 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
 
   const verifyOtp = async () => {
     try {
+      if (otp.length !== 6) {
+        setError("Please enter a valid 6-digit OTP");
+        return;
+      }
+      if (!window.confirmationResult) {
+        setError("OTP session expired. Please resend OTP.");
+        return;
+      }
+
       setLoading(true);
+      setError("");
 
       const result = await window.confirmationResult.confirm(otp);
       const firebaseUser = result.user;
@@ -168,15 +227,15 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
       let backendUser = null;
       let backendToken = null;
       try {
-        const backendResp = await fetch(`${API_BASE_URL}/api/otp/verify-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: mobile, otp: "1234" }),
-        });
-        const backendData = await backendResp.json();
-        if (backendData?.success) {
-          backendUser = backendData?.data?.user || null;
-          backendToken = backendData?.data?.token || null;
+        const idToken = await firebaseUser.getIdToken();
+        const backendData = await postToFirstWorkingEndpoint(
+          ["/api/otp/verify-otp", "/auth/verify-otp", "/api/auth/verify-otp"],
+          { phone: mobile, otp, firebaseToken: idToken }
+        );
+        if (backendData) {
+          const normalized = normalizeAuthResponse(backendData);
+          backendUser = normalized.userData;
+          backendToken = normalized.token;
         }
       } catch {
         // keep firebase-only session fallback
@@ -205,7 +264,7 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
       navigate("/user-profile");
     } catch (err) {
       console.error(err);
-      alert("Invalid OTP");
+      setError("Invalid OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -223,19 +282,20 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
       let backendUser = null;
       let backendToken = null;
       try {
-        const backendResp = await fetch(`${API_BASE_URL}/api/auth/social-login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const idToken = await firebaseUser.getIdToken();
+        const backendData = await postToFirstWorkingEndpoint(
+          ["/api/auth/social-login", "/auth/social-login"],
+          {
             email: firebaseUser.email || "",
             name: firebaseUser.displayName || "Google User",
             profile: firebaseUser.photoURL || "",
-          }),
-        });
-        const backendData = await backendResp.json();
-        if (backendResp.ok && backendData?.data) {
-          backendUser = backendData.data;
-          backendToken = backendData.token || null;
+            firebaseToken: idToken,
+          }
+        );
+        if (backendData) {
+          const normalized = normalizeAuthResponse(backendData);
+          backendUser = normalized.userData;
+          backendToken = normalized.token;
         }
       } catch {
         // fallback to firebase session only
@@ -338,9 +398,9 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
                 <span>OR</span>
               </div>
 
-              <button className="google-btn" onClick={handleGoogleLogin}>
+              <button className="google-btn" onClick={handleGoogleLogin} disabled={loading}>
                 <FcGoogle size={20} />
-                <span>Continue with Google</span>
+                <span>{loading ? "Please wait..." : "Continue with Google"}</span>
               </button>
 
               <button className="astrologer-btn" onClick={handleAstrologerLogin}>
@@ -385,7 +445,7 @@ export default function AuthModal({ onClose, isLoggedIn, user }) {
                 Change Number
               </button>
 
-              <button className="resend-btn" onClick={sendOtp}>
+              <button className="resend-btn" onClick={sendOtp} disabled={loading}>
                 Resend OTP
               </button>
             </>
